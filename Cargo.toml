@@ -1,0 +1,4 @@
+[package]
+name = "gitrev"
+version = "0.1.0"
+authors = ["Jakub Konka <jakub.konka@strath.ac.uk>"]

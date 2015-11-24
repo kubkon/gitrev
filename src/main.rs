@@ -3,6 +3,8 @@ extern crate docopt;
 extern crate gitrev;
 
 use docopt::Docopt;
+use std::io::Read;
+use std::fs::File;
 
 const USAGE: &'static str = "
 GITREV is a utility program that is meant to serve as a replacement for
@@ -49,4 +51,9 @@ fn main() {
     println!("Build time: {}", build_time);
     println!("Current branch: {}", curr_branch);
     println!("Remote url: {}", remote_url);
+
+    let mut f = File::open(&args.arg_src_version_file).unwrap();
+    let mut contents = String::new();
+    f.read_to_string(&mut contents).unwrap();
+    println!("Template contents:\n{}", contents);
 }

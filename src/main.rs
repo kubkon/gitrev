@@ -29,10 +29,14 @@ fn main() {
     let args: Args = Docopt::new(USAGE)
                             .and_then(|d| d.decode())
                             .unwrap_or_else(|e| e.exit());
-    let curr_rev = gitrev::git_describe().unwrap();
-    let curr_branch = gitrev::git_branch().unwrap();
-    let remote_url = gitrev::git_remote_url().unwrap();
-    let build_time = gitrev::build_time().unwrap();
+    let curr_rev = gitrev::git_describe()
+                          .unwrap_or_else(|e| panic!(e));
+    let curr_branch = gitrev::git_branch()
+                             .unwrap_or_else(|e| panic!(e));
+    let remote_url = gitrev::git_remote_url()
+                            .unwrap_or_else(|e| panic!(e));
+    let build_time = gitrev::build_time()
+                            .unwrap_or_else(|e| panic!(e));
     println!("Current revision: {}", curr_rev);
     println!("Build time: {}", build_time);
     println!("Current branch: {}", curr_branch);

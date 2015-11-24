@@ -1,5 +1,6 @@
 extern crate rustc_serialize;
 extern crate docopt;
+extern crate time;
 
 use docopt::Docopt;
 use std::process::Command;
@@ -29,10 +30,31 @@ fn main() {
     let args: Args = Docopt::new(USAGE)
                             .and_then(|d| d.decode())
                             .unwrap_or_else(|e| e.exit());
-    let git_rev = Command::new("git")
-                           .arg("describe")
-                           .arg("--always")
-                           .output()
-                           .unwrap_or_else(|e| { panic!("Failed to execute process: {}", e) });
-    println!("{}", String::from_utf8_lossy(&git_rev.stdout));
+    let git_describe = Command::new("git")
+                               .arg("describe")
+                               .arg("--always")
+                               .output()
+                               .unwrap_or_else(|e| { panic!("Failed to execute process: {}", e) });
+    let git_describe_str = String::from_utf8_lossy(&git_describe.stdout);
+    let curr_rev = &git_describe_str.trim();
+    let time_now = time::strftime("%F %T %Z", &time::now_utc())
+                        .unwrap_or_else(|e| { panic!("Failed to parse current time: {}", e) });
+    let git_branch = Command::new("git")
+                             .arg("branch")
+                             .output()
+                             .unwrap_or_else(|e| { panic!("Failed to execute process: {}", e) });
+    let git_branch_str = String::from_utf8_lossy(&git_branch.stdout);
+    let curr_branch = &git_branch_str.split_whitespace().nth(1).unwrap();
+    let git_url = Command::new("git")
+                          .arg("config")
+                          .arg("--get")
+                          .arg("remote.origin.url")
+                          .output()
+                          .unwrap_or_else(|e| { panic!("Failed to execute the process: {}", e) });
+    let git_url_str = String::from_utf8_lossy(&git_url.stdout);
+    let curr_url = &git_url_str.trim();
+    println!("Current revision: {}", curr_rev);
+    println!("Current time: {}", time_now);
+    println!("Current branch: {}", curr_branch);
+    println!("Current url: {}", curr_url);
 }

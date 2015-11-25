@@ -7,11 +7,3 @@ authors = ["Jakub Konka <kubkon@jakubkonka.com>"]
 docopt = "*"
 rustc-serialize = "*"
 time = "*"
-
-[lib]
-name = "gitrev"
-path = "src/lib.rs"
-
-[[bin]]
-name = "gitrev"
-path = "src/main.rs"

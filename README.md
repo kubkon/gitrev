@@ -8,8 +8,8 @@ for the documentation of `SubWCRev.exe`.
 
 ## Usage
 
-The utility requires two positional arguments, `src-version-file` and
-`dst-version-file`. The former should be a template file that gitrev will
+The utility requires two positional arguments, `template-file` and
+`output-file`. The former should be a template file that gitrev will
 insert git build-specific data into, and the latter should be the name of the
 desired output file.
 

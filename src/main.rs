@@ -39,10 +39,8 @@ fn main() {
                              .unwrap_or_else(|e| e.exit());
     let remote_url = gitrev::git_command("config --get remote.origin.url")
                             .unwrap_or_else(|e| e.exit());
-    let build_time = gitrev::build_time().unwrap_or_else(|e| {
-        println!("{}", e);
-        ::std::process::exit(1);
-    });
+    let build_time = gitrev::build_time()
+                            .unwrap_or_else(|e| e.exit());
     println!("Current revision: {}", curr_rev);
     println!("Build time: {}", build_time);
     println!("Current branch: {}", curr_branch);

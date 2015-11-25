@@ -25,9 +25,8 @@ impl GitRevError {
 impl fmt::Display for GitRevError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Git(ref s) | DateTime(ref s) => {
-                write!(f, "{}", s)
-            }
+            Git(ref s) => write!(f, "git error: {}", s),
+            DateTime(ref s) => write!(f, "system time error: {}", s),
         }
     }
 }
@@ -46,7 +45,7 @@ pub fn git_command(cmd: &str) -> Result<String, GitRevError> {
     let args: Vec<&str> = cmd.split_whitespace().collect();
     let output = match Command::new("git").args(&args).output() {
         Err(e) => return Err(Git(String::from(e.description()))),
-        Ok(out) => out
+        Ok(out) => out,
     };
     if output.stdout.is_empty() {
         let err_msg = String::from_utf8_lossy(&output.stderr);
@@ -56,9 +55,9 @@ pub fn git_command(cmd: &str) -> Result<String, GitRevError> {
     Ok(String::from(result.trim()))
 }
 
-pub fn build_time() -> GitRevResult {
+pub fn build_time() -> Result<String, GitRevError> {
     match time::strftime("%F %T %Z", &time::now_utc()) {
-        Err(_) => Err(String::from("failed to get system time")),
-        Ok(out) => Ok(out)
+        Err(e) => Err(DateTime(String::from(e.description()))),
+        Ok(out) => Ok(out),
     }
 }

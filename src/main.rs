@@ -61,9 +61,9 @@ fn main() {
 
     // Parse the contents in search of special delimiters
     // and replace with the git data
-    contents = contents.replace("$WCREV$", &curr_rev);
-    contents = contents.replace("$WCNOW$", &build_time);
-    contents = contents.replace("$WCURL$", &remote_url);
+    contents = contents.replace("$WCREV$", &curr_rev)
+                       .replace("$WCNOW$", &build_time)
+                       .replace("$WCURL$", &remote_url);
 
     // Write contents to the destination file
     f = File::create(&args.arg_dst_version_file).unwrap();

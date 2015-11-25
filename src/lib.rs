@@ -39,7 +39,7 @@ pub fn git_branch() -> GitRevResult {
         return Err(err);
     }
     let git_branch_str = String::from_utf8_lossy(&git_branch.stdout);
-    Ok(String::from(git_branch_str.split_whitespace().nth(1).unwrap()))
+    Ok(String::from(git_branch_str.split_whitespace().last().unwrap()))
 }
 
 pub fn git_remote_url() -> GitRevResult {

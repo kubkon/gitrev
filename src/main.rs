@@ -58,10 +58,12 @@ fn main() {
     let mut f = File::open(&args.arg_src_version_file).unwrap();
     let mut contents = String::new();
     f.read_to_string(&mut contents).unwrap();
-    println!("Template contents:\n{}", contents);
 
     // Parse the contents in search of special delimiters
     // and replace with the git data
+    contents = contents.replace("$WCREV$", &curr_rev);
+    contents = contents.replace("$WCNOW$", &build_time);
+    contents = contents.replace("$WCURL$", &remote_url);
 
     // Write contents to the destination file
     f = File::create(&args.arg_dst_version_file).unwrap();

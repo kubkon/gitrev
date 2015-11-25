@@ -3,65 +3,57 @@ extern crate time;
 
 use std::process::Command;
 use std::error::Error;
+use std::fmt;
+
+use self::GitRevError::{Git, DateTime};
 
 pub type GitRevResult = Result<String, String>;
 
-pub fn git_describe() -> GitRevResult {
-    let git_describe = match Command::new("git").arg("describe").arg("--always").output() {
-        Err(e) => {
-            let mut err = String::from("git-describe failed with error:\n");
-            err.push_str(e.description());
-            return Err(err);
-        },
-        Ok(out) => out
-    };
-    if git_describe.stdout.is_empty() {
-        let mut err = String::from("git-describe failed with error:\n");
-        err.push_str(&String::from_utf8_lossy(&git_describe.stderr));
-        return Err(err);
-    }
-    let git_describe_str = String::from_utf8_lossy(&git_describe.stdout);
-    Ok(String::from(git_describe_str.trim()))
+#[derive(Debug)]
+pub enum GitRevError {
+    Git(String),
+    DateTime(String),
 }
 
-pub fn git_branch() -> GitRevResult {
-    let git_branch = match Command::new("git").arg("branch").output() {
-        Err(e) => {
-            let mut err = String::from("git-branch failed with error:\n");
-            err.push_str(e.description());
-            return Err(err);
-        },
-        Ok(out) => out
-    };
-    if git_branch.stdout.is_empty() {
-        let mut err = String::from("git-branch failed with error:\n");
-        err.push_str(&String::from_utf8_lossy(&git_branch.stderr));
-        return Err(err);
+impl GitRevError {
+    pub fn exit(&self) -> ! {
+        println!("{}", self);
+        ::std::process::exit(1)
     }
-    let git_branch_str = String::from_utf8_lossy(&git_branch.stdout);
-    Ok(String::from(git_branch_str.split_whitespace().last().unwrap()))
 }
 
-pub fn git_remote_url() -> GitRevResult {
-    let git_url = match Command::new("git")
-                                .arg("config")
-                                .arg("--get")
-                                .arg("remote.origin.url")
-                                .output() {
-        Err(e) => {
-            let mut err = String::from("git-remote-url failed with error:\n");
-            err.push_str(e.description());
-            return Err(err);
-        },
+impl fmt::Display for GitRevError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Git(ref s) | DateTime(ref s) => {
+                write!(f, "{}", s)
+            }
+        }
+    }
+}
+
+impl Error for GitRevError {
+    fn description(&self) -> &str {
+        match *self {
+            Git(..) => "git command failed",
+            DateTime(..) => "failed to parse system time",
+        }
+    }
+}
+
+pub fn git_command(cmd: &str) -> Result<String, GitRevError> {
+    // Parse args
+    let args: Vec<&str> = cmd.split_whitespace().collect();
+    let output = match Command::new("git").args(&args).output() {
+        Err(e) => return Err(Git(String::from(e.description()))),
         Ok(out) => out
     };
-    if git_url.stdout.is_empty() {
-        let mut err = String::from("git-remote-url failed with error:\n");
-        err.push_str(&String::from_utf8_lossy(&git_url.stderr));
-        return Err(err);
+    if output.stdout.is_empty() {
+        let err_msg = String::from_utf8_lossy(&output.stderr);
+        return Err(Git(String::from(err_msg.trim())));
     }
-    let git_url_str = String::from_utf8_lossy(&git_url.stdout);
-    Ok(String::from(git_url_str.trim()))
+    let result = String::from_utf8_lossy(&output.stdout);
+    Ok(String::from(result.trim()))
 }
 
 pub fn build_time() -> GitRevResult {

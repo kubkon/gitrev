@@ -33,18 +33,12 @@ fn main() {
                             .unwrap_or_else(|e| e.exit());
 
     // Get all the necessary data from git and system
-    let curr_rev = gitrev::git_describe().unwrap_or_else(|e| {
-        println!("{}", e);
-        ::std::process::exit(1);
-    });
-    let curr_branch = gitrev::git_branch().unwrap_or_else(|e| {
-        println!("{}", e);
-        ::std::process::exit(1);
-    });
-    let remote_url = gitrev::git_remote_url().unwrap_or_else(|e| {
-        println!("{}", e);
-        ::std::process::exit(1);
-    });
+    let curr_rev = gitrev::git_command("describe --always")
+                          .unwrap_or_else(|e| e.exit());
+    let curr_branch = gitrev::git_command("rev-parse --abbrev-ref HEAD")
+                             .unwrap_or_else(|e| e.exit());
+    let remote_url = gitrev::git_command("config --get remote.origin.url")
+                            .unwrap_or_else(|e| e.exit());
     let build_time = gitrev::build_time().unwrap_or_else(|e| {
         println!("{}", e);
         ::std::process::exit(1);

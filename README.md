@@ -37,4 +37,4 @@ $ cargo test
 
 ## License
 
-Standard MIT license applies.
+[MIT license.](LICENSE.md)

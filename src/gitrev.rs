@@ -88,7 +88,10 @@ impl GitRev {
 
         // Parse the contents in search of special delimiters
         // and replace with the git data
-        contents = contents.replace("$WCREV$", &curr_rev)
+        // here, we decide whether to use current tag or branch
+        // in place of WCREV token
+        let build = if curr_branch == "master" { curr_rev } else { curr_branch };
+        contents = contents.replace("$WCREV$", &build)
                            .replace("$WCNOW$", &build_time)
                            .replace("$WCURL$", &remote_url);
 
